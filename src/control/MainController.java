@@ -39,6 +39,10 @@ public class MainController {
      */
     public boolean insertUser(String name){
         //TODO 05: Nutzer dem sozialen Netzwerk hinzufügen.
+        if(allUsers.getVertex(name) == null){
+            allUsers.addVertex(new Vertex(name));
+            return true;
+        }
         return false;
     }
 
@@ -49,6 +53,10 @@ public class MainController {
      */
     public boolean deleteUser(String name){
         //TODO 07: Nutzer aus dem sozialen Netzwerk entfernen.
+        if(allUsers.getVertex(name) != null){
+            allUsers.removeVertex(allUsers.getVertex(name));
+            return true;
+        }
         return false;
     }
 
@@ -58,7 +66,24 @@ public class MainController {
      */
     public String[] getAllUsers(){
         //TODO 06: String-Array mit allen Nutzernamen erstellen.
-        return null;
+        if(!allUsers.isEmpty() || allUsers == null) return  null;
+
+        int count = 0;
+        List<Vertex> vertices = allUsers.getVertices();
+        allUsers.getVertices().toFirst();
+        while (vertices.hasAccess()){
+            count++;
+            vertices.next();
+        }
+
+
+        String[] output = new String[count];
+        vertices.toFirst();
+        for (int i = 0; i< output.length; i++){
+            output[i] = vertices.getContent().getID();
+            vertices.next();
+        }
+        return output;
     }
 
     /**
