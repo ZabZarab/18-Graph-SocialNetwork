@@ -116,6 +116,16 @@ public class MainController {
      */
     public boolean befriend(String name01, String name02){
         //TODO 08: Freundschaften schließen.
+        List<Vertex> b = allUsers.getNeighbours(new Vertex(name01));
+        if(allUsers.getVertex(name01) != null && allUsers.getVertex(name02) != null){
+            b.toFirst();
+            while (b.hasAccess() && !b.getContent().equals(allUsers.getVertex(name02))){
+                b.next();
+            }
+            if(!b.hasAccess()){
+                return true;
+            }
+        }
         return false;
     }
 
