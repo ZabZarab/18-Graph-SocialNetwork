@@ -93,6 +93,26 @@ public class MainController {
      */
     public String[] getAllFriendsFromUser(String name){
         //TODO 09: Freundesliste eines Nutzers als String-Array erstellen.
+        Vertex v = allUsers.getVertex(name);
+        if(v == null) return null;
+
+        List<Vertex> neighbours = allUsers.getNeighbours(v);
+        int counter = 0;
+        if(!neighbours.isEmpty()){
+            neighbours.toFirst();
+            while (neighbours.hasAccess()){
+                counter++;
+                neighbours.next();
+            }
+
+            String[] array = new String[counter];
+            neighbours.toFirst();
+            for(int i = 0; i < counter; i++){
+                array[i] = neighbours.getContent().getID();
+                neighbours.next();
+            }
+            return array;
+        }
         return null;
     }
 
@@ -105,7 +125,29 @@ public class MainController {
      */
     public double centralityDegreeOfUser(String name){
         //TODO 10: Prozentsatz der vorhandenen Freundschaften eines Nutzers von allen möglichen Freundschaften des Nutzers.
-        return 0.125456;
+        Vertex v = allUsers.getVertex(name);
+        if(v == null) return -1.0;
+
+        double friends = 0.0;
+        double allOtherUsers = -1.0;
+
+        List<Vertex> hFriends = allUsers.getNeighbours(v);
+        hFriends.toFirst();
+        while (hFriends.hasAccess()){
+            hFriends.next();
+            friends++;
+        }
+
+        List<Vertex> allU = allUsers.getVertices();
+        allU.toFirst();
+        while (allU.hasAccess()){
+            allU.next();
+            allOtherUsers++;
+        }
+
+        if(allOtherUsers == 0.0) return -1.0;
+
+        return friends/allOtherUsers;
     }
 
     /**
@@ -116,15 +158,19 @@ public class MainController {
      */
     public boolean befriend(String name01, String name02){
         //TODO 08: Freundschaften schließen.
-        List<Vertex> b = allUsers.getNeighbours(new Vertex(name01));
-        if(allUsers.getVertex(name01) != null && allUsers.getVertex(name02) != null){
+        Vertex v1 = allUsers.getVertex(name01);
+        Vertex v2 = allUsers.getVertex(name02);
+
+        if(v1 != null && v2 != null){
+            List<Vertex> b = allUsers.getNeighbours(v1);
             b.toFirst();
-            while (b.hasAccess() && !b.getContent().equals(allUsers.getVertex(name02))){
+            while (b.hasAccess()){
+                if(b.getContent() == v2) return false;
                 b.next();
             }
-            if(!b.hasAccess()){
-                return true;
-            }
+            //Knoten sind drin, aber nicht befreundet Änder das!
+            allUsers.addEdge(new Edge(v1 , v2 , 1));
+            return true;
         }
         return false;
     }
@@ -137,6 +183,13 @@ public class MainController {
      */
     public boolean unfriend(String name01, String name02){
         //TODO 11: Freundschaften beenden.
+        Vertex v1 = allUsers.getVertex(name01);
+        Vertex v2 = allUsers.getVertex(name02);
+
+        if(v1 != null && v2 != null && v1 != v2 && allUsers.getEdge(v1, v2) != null){
+            allUsers.removeEdge(allUsers.getEdge(v1,v2));
+            return true;
+        }
         return false;
     }
 
@@ -147,7 +200,32 @@ public class MainController {
      */
     public double dense(){
         //TODO 12: Dichte berechnen.
-        return 0.12334455676;
+        double dense = 0.0;
+
+        double amountOfEdges = 0.0;
+        List<Edge> edgeList = allUsers.getEdges();
+        edgeList.toFirst();
+        while ((edgeList.hasAccess())){
+            edgeList.next();
+            amountOfEdges++;
+        }
+
+        double amountAllUsers = 0.0;
+        List<Vertex> allU = allUsers.getVertices();
+        allU.toFirst();
+        while (allU.hasAccess()){
+            allU.next();
+            amountAllUsers++;
+        }
+
+        if(amountAllUsers == 0.0) return  -1.0;
+        return amountOfEdges/moechteGernFac(amountAllUsers-1);
+    }
+
+    private double moechteGernFac(double n){
+        if(n <= 0) return 0;
+        return  n + moechteGernFac(n-1);
+
     }
 
     /**
@@ -158,10 +236,48 @@ public class MainController {
      * @return
      */
     public String[] getLinksBetween(String name01, String name02){
+        //TODO 13: Schreibe einen Algorithmus, der mindestens eine Verbindung von einem Nutzer über Zwischennutzer zu einem anderem Nutzer bestimmt. Happy Kopfzerbrechen!
+
         Vertex user01 = allUsers.getVertex(name01);
         Vertex user02 = allUsers.getVertex(name02);
         if(user01 != null && user02 != null){
-            //TODO 13: Schreibe einen Algorithmus, der mindestens eine Verbindung von einem Nutzer über Zwischennutzer zu einem anderem Nutzer bestimmt. Happy Kopfzerbrechen!
+            List<Vertex> p = new List<>();
+            p.append(user01);
+            user01.setMark(true);
+
+            while (!p.isEmpty() && !user02.isMarked()){
+                p.toLast();
+                List<Vertex> neighbours = allUsers.getNeighbours(p.getContent());
+                neighbours.toFirst();
+                if(!neighbours.isEmpty()){
+                    while (neighbours.hasAccess() && neighbours.getContent().isMarked()){
+                        neighbours.next();
+                    }
+                }
+                if(neighbours.hasAccess()){
+                    p.append(neighbours.getContent());
+                    neighbours.getContent().setMark(true);
+                }else{
+                    p.toLast();
+                    p.remove();
+                }
+            }
+            allUsers.setAllVertexMarks(false);
+
+            if(!p.isEmpty()) {
+                int counter = 0;
+                while (p.hasAccess()) {
+                    p.next();
+                    counter++;
+                }
+                String[] output = new String[counter];
+                p.toFirst();
+                for (int i = 0; i < output.length; i++) {
+                    output[i] = p.getContent().getID();
+                    p.next();
+                }
+                return output;
+            }
         }
         return null;
     }

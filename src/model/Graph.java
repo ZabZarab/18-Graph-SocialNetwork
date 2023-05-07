@@ -85,7 +85,7 @@ public class Graph{
     //TODO 03: Knoten-Objekt finden.
     if(!vertices.isEmpty()){
       vertices.toFirst();
-      while (!vertices.getContent().getID().equals(pID) && vertices.hasAccess()){
+      while (vertices.hasAccess()&&!vertices.getContent().getID().equals(pID)){
         vertices.next();
       }
       return vertices.getContent();
