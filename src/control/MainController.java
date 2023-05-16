@@ -66,7 +66,7 @@ public class MainController {
      */
     public String[] getAllUsers(){
         //TODO 06: String-Array mit allen Nutzernamen erstellen.
-        if(!allUsers.isEmpty() || allUsers == null) return  null;
+        if(allUsers.isEmpty() || allUsers == null) return  null;
 
         int count = 0;
         List<Vertex> vertices = allUsers.getVertices();
@@ -288,6 +288,13 @@ public class MainController {
      */
     public boolean someoneIsLonely(){
         //TODO 14: Schreibe einen Algorithmus, der explizit den von uns benutzten Aufbau der Datenstruktur Graph und ihre angebotenen Methoden so ausnutzt, dass schnell (!) iterativ geprüft werden kann, ob der Graph allUsers keine einsamen Knoten hat. Dies lässt sich mit einer einzigen Schleife prüfen.
+        List<Vertex> list = allUsers.getVertices();
+        if(!list.isEmpty()){
+            while(list.hasAccess()){
+                if(allUsers.getNeighbours(list.getContent()).isEmpty()) return true;
+                list.next();
+            }
+        }
         return false;
     }
 
@@ -298,6 +305,15 @@ public class MainController {
      */
     public boolean testIfConnected(){
         //TODO 15: Schreibe einen Algorithmus, der ausgehend vom ersten Knoten in der Liste aller Knoten versucht, alle anderen Knoten über Kanten zu erreichen und zu markieren.
+        if(someoneIsLonely() == true) return false;
+        List<Vertex> list = allUsers.getVertices();
+        if(!list.isEmpty()){
+            Vertex t = list.getContent();
+            list.next();
+            while(list.hasAccess()){
+                if(getLinksBetween(t.getID(), list.getContent().getID() == null) return false;
+            }
+        }
         return false;
     }
     
@@ -308,6 +324,46 @@ public class MainController {
      */
     public String[] transitiveFriendships(String name){
         //TODO 16: Schreibe einen Algorithmus, der ausgehend von einem Knoten alle erreichbaren ausgibt.
+        Vertex user01 = allUsers.getVertex(name);
+
+        if(user01 != null){
+            List<Vertex> list = new List<>();
+            list.append(user01);
+            user01.setMark(true);
+            list.toFirst();
+            while (list.hasAccess()){
+                List<Vertex> neighbours = allUsers.getNeighbours(list.getContent());
+                neighbours.toFirst();
+                if(!neighbours.isEmpty()){
+                    while (neighbours.hasAccess() && neighbours.getContent().isMarked()){
+                        neighbours.next();
+                    }
+                }
+                if(neighbours.hasAccess()){
+                    list.append(neighbours.getContent());
+                    neighbours.getContent().setMark(true);
+                }else{
+                    list.next();
+                }
+                list.next();
+            }
+            allUsers.setAllVertexMarks(false);
+
+            if(!list.isEmpty()) {
+                int counter = 0;
+                while (list.hasAccess()) {
+                    list.next();
+                    counter++;
+                }
+                String[] output = new String[counter];
+                list.toFirst();
+                for (int i = 0; i < output.length; i++) {
+                    output[i] = list.getContent().getID();
+                    list.next();
+                }
+                return output;
+            }
+        }
         return null;
     }
     
